@@ -59,7 +59,7 @@ def quantity():
     current_quantity = get_current_quantity()
 
     return jsonify({
-        "quantity_ml": current_quantity
+        "quantity": current_quantity
     })
 
 
