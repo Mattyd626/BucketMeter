@@ -64,6 +64,14 @@ def fill():
         "new_quantity": new_quantity
     })
 
+@app.route("/empty", methods=["POST"])
+def empty():
+    save_quantity(0)
+
+    return jsonify({
+        "quantity": 0
+    })
+
 
 @app.route("/quantity", methods=["GET"])
 def quantity():
