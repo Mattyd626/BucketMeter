@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import os
+import requests
 
 app = Flask(__name__)
 
@@ -7,6 +8,13 @@ QUANTITY_FILE = "quantity"
 
 FLOW_RATE_ML_PER_MINUTE = 400
 
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1509724578971254944/RQFnKZS2hCGGqDNxiphr2clzvIdIS42rLQVSTXjpmB8RK3d0YJkNbAsf31PGNthTDhb_"
+
+def send_discord_alert(message):
+    payload = {
+        "content": message
+    }
+    requests.post(DISCORD_WEBHOOK_URL, json=payload)
 
 def get_current_quantity():
     if not os.path.exists(QUANTITY_FILE):
@@ -45,12 +53,15 @@ def fill():
 
     new_quantity = current_quantity + added_amount
 
+    if new_quantity > 5000:
+        send_discord_alert(f"Bucket nearly full {int(new_quantity/100)/10.0}/10L!")
+
     save_quantity(new_quantity)
 
     return jsonify({
         "time_seconds": time_seconds,
         "added_ml": added_amount,
-        "new_quantity_ml": new_quantity
+        "new_quantity": new_quantity
     })
 
 
