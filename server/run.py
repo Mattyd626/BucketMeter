@@ -1,20 +1,27 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import requests
 
 app = Flask(__name__)
 
+# Enable CORS
+CORS(app)
+
 QUANTITY_FILE = "quantity"
 
 FLOW_RATE_ML_PER_MINUTE = 400
 
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1509724578971254944/RQFnKZS2hCGGqDNxiphr2clzvIdIS42rLQVSTXjpmB8RK3d0YJkNbAsf31PGNthTDhb_"
+DISCORD_WEBHOOK_URL = "YOUR_WEBHOOK_URL"
+
 
 def send_discord_alert(message):
     payload = {
         "content": message
     }
+
     requests.post(DISCORD_WEBHOOK_URL, json=payload)
+
 
 def get_current_quantity():
     if not os.path.exists(QUANTITY_FILE):
@@ -41,11 +48,11 @@ def fill():
 
     try:
         time_seconds = float(data["time"])
+
     except ValueError:
         return jsonify({
             "error": "'time' must be a number"
         }), 400
-
 
     added_amount = FLOW_RATE_ML_PER_MINUTE * (time_seconds / 60.0)
 
@@ -54,7 +61,10 @@ def fill():
     new_quantity = current_quantity + added_amount
 
     if new_quantity > 5000:
-        send_discord_alert(f"Bucket nearly full {int(new_quantity/100)/10.0}/10L!")
+        send_discord_alert(
+            f"Bucket nearly full "
+            f"{int(new_quantity / 100) / 10.0}/10L!"
+        )
 
     save_quantity(new_quantity)
 
@@ -63,6 +73,7 @@ def fill():
         "added_ml": added_amount,
         "new_quantity": new_quantity
     })
+
 
 @app.route("/empty", methods=["POST"])
 def empty():
