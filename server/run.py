@@ -39,40 +39,43 @@ def save_quantity(quantity):
 
 @app.route("/fill", methods=["POST"])
 def fill():
-    data = request.get_json()
-
-    if not data or "time" not in data:
-        return jsonify({
-            "error": "Missing 'time' parameter"
-        }), 400
-
     try:
-        time_seconds = float(data["time"])
+        data = request.get_json()
 
-    except ValueError:
+        if not data or "time" not in data:
+            return jsonify({
+                "error": "Missing 'time' parameter"
+            }), 400
+
+        try:
+            time_seconds = float(data["time"])
+
+        except ValueError:
+            return jsonify({
+                "error": "'time' must be a number"
+            }), 400
+
+        added_amount = FLOW_RATE_ML_PER_MINUTE * (time_seconds / 60.0)
+
+        current_quantity = get_current_quantity()
+
+        new_quantity = current_quantity + added_amount
+
+        if new_quantity > 5000:
+            send_discord_alert(
+                f"Bucket nearly full "
+                f"{int(new_quantity / 100) / 10.0}/10L!"
+            )
+
+        save_quantity(new_quantity)
+
         return jsonify({
-            "error": "'time' must be a number"
-        }), 400
-
-    added_amount = FLOW_RATE_ML_PER_MINUTE * (time_seconds / 60.0)
-
-    current_quantity = get_current_quantity()
-
-    new_quantity = current_quantity + added_amount
-
-    if new_quantity > 5000:
-        send_discord_alert(
-            f"Bucket nearly full "
-            f"{int(new_quantity / 100) / 10.0}/10L!"
-        )
-
-    save_quantity(new_quantity)
-
-    return jsonify({
-        "time_seconds": time_seconds,
-        "added_ml": added_amount,
-        "new_quantity": new_quantity
-    })
+            "time_seconds": time_seconds,
+            "added_ml": added_amount,
+            "new_quantity": new_quantity
+        })
+    except Exception as e:
+        print(e)
 
 
 @app.route("/empty/", methods=["POST"])
