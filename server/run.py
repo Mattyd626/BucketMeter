@@ -86,6 +86,10 @@ def fill():
         })
     except Exception as e:
         print(e)
+        send_discord_alert(
+            f"Error:"
+            f"{str(e)}"
+        )
         return jsonify({
             "error": str(e)
         }), 500
