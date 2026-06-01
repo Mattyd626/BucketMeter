@@ -10,7 +10,6 @@ export default function P5Sketch() {
     pollingInterval: 2000,
   });
 
-  // Update quantity without recreating p5
   useEffect(() => {
     quantityRef.current = data?.quantity || 0;
   }, [data]);
@@ -19,31 +18,32 @@ export default function P5Sketch() {
     let myP5;
 
     const sketch = (p) => {
+      let quantity = 0;
       p.setup = () => {
         const canvas = p.createCanvas(400, 400);
         canvas.style("display", "block");
       };
 
       p.draw = () => {
-        p.background(220);
-
-        const quantity = quantityRef.current;
+        p.clear();
+        quantity = p.lerp(quantity,quantityRef.current,0.1);
 
         const mappedHeight =
           400 - (quantity / 10000) * 400;
 
-        // Water
         p.fill(0, 0, 255);
-        p.rect(
-          0,
-          mappedHeight,
-          400,
-          400 - mappedHeight
-        );
+        p.noStroke();
+        p.beginShape(p.QUAD_STRIP);
 
-        // Mouse circle
-        p.fill(255, 0, 0);
-        p.circle(p.mouseX, p.mouseY, 50);
+        var waveSize = p.map(quantity,0.0,10000.0,0.0,1.2) * 500.0;
+
+        for(var i = 0; i < 101; i++){
+          var x = p.map(i,0,100,0,p.width);
+          var h = p.map(p.map(p.noise(i/32.0+p.millis()/200.0),0,1,quantity-waveSize,quantity+waveSize),0,10000,0,p.height);
+          p.vertex(x,p.height-h);
+          p.vertex(x,p.height);
+        }
+        p.endShape();
       };
     };
 
