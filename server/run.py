@@ -12,7 +12,7 @@ QUANTITY_FILE = "quantity"
 
 FLOW_RATE_ML_PER_MINUTE = 400
 
-DISCORD_WEBHOOK_URL = "YOUR_WEBHOOK_URL"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1509724578971254944/RQFnKZS2hCGGqDNxiphr2clzvIdIS42rLQVSTXjpmB8RK3d0YJkNbAsf31PGNthTDhb_"
 
 
 def send_discord_alert(message):
@@ -76,7 +76,9 @@ def fill():
         })
     except Exception as e:
         print(e)
-
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 @app.route("/empty/", methods=["POST"])
 def empty():
