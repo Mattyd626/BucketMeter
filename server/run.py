@@ -75,7 +75,7 @@ def fill():
     })
 
 
-@app.route("/empty", methods=["POST"])
+@app.route("/empty/", methods=["POST"])
 def empty():
     save_quantity(0)
 

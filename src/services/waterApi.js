@@ -11,9 +11,14 @@ export const waterApi = createApi({
     getQuantity: builder.query({
       query: () => "quantity",
     }),
+    setEmpty: builder.mutation({
+      query: () => "empty/",
+      method: "POST",
+    })
   }),
 });
 
 export const {
   useGetQuantityQuery,
+  useSetEmptyMutation,
 } = waterApi;

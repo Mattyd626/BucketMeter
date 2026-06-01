@@ -1,35 +1,47 @@
 import { useEffect, useRef } from "react";
 import p5 from "p5";
-import { useGetQuantityQuery } from "../services/waterApi.js"
+import { useGetQuantityQuery } from "../services/waterApi.js";
 
 export default function P5Sketch() {
   const sketchRef = useRef();
+  const quantityRef = useRef(0);
 
-  const {
-    data,
-    error,
-    isLoading,
-  } = useGetQuantityQuery(undefined, {
+  const { data } = useGetQuantityQuery(undefined, {
     pollingInterval: 2000,
   });
 
-  const quantity = data?.quantity_ml || 0;
-  console.log(quantity);
-  
-  const mappedHeight = 400.0 - quantity/10000.0*400.0;
+  // Update quantity without recreating p5
+  useEffect(() => {
+    quantityRef.current = data?.quantity || 0;
+  }, [data]);
+
   useEffect(() => {
     let myP5;
 
     const sketch = (p) => {
       p.setup = () => {
-        p.createCanvas(400, 400);
+        const canvas = p.createCanvas(400, 400);
+        canvas.style("display", "block");
       };
 
       p.draw = () => {
         p.background(220);
 
-        p.fill(0,0,255);
-        p.rect(0,mappedHeight,400,400-mappedHeight);
+        const quantity = quantityRef.current;
+
+        const mappedHeight =
+          400 - (quantity / 10000) * 400;
+
+        // Water
+        p.fill(0, 0, 255);
+        p.rect(
+          0,
+          mappedHeight,
+          400,
+          400 - mappedHeight
+        );
+
+        // Mouse circle
         p.fill(255, 0, 0);
         p.circle(p.mouseX, p.mouseY, 50);
       };
@@ -42,5 +54,13 @@ export default function P5Sketch() {
     };
   }, []);
 
-  return <div ref={sketchRef} />;
+  return (
+    <div
+      ref={sketchRef}
+      style={{
+        width: "400px",
+        height: "400px",
+      }}
+    />
+  );
 }
