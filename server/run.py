@@ -61,9 +61,19 @@ def fill():
 
         new_quantity = current_quantity + added_amount
 
-        if new_quantity > 5000:
+        if new_quantity > 5000 and new_quantity <= 9000:
             send_discord_alert(
                 f"Bucket nearly full "
+                f"{int(new_quantity / 100) / 10.0}/10L!"
+            )
+        elif new_quantity > 9000 and new_quantity <= 10_000:
+             send_discord_alert(
+                f"Ohhh myy lawwwdd im bouttaaa BUUSSTTTT"
+                f"{int(new_quantity / 100) / 10.0}/10L!"
+            )           
+        elif new_quantity > 10_000:
+            send_discord_alert(
+                f"I came on da floor.."
                 f"{int(new_quantity / 100) / 10.0}/10L!"
             )
 
